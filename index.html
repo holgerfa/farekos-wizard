@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FAREKOS – Feedback &amp; Support Wizard</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+    background: #f5f5f3;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    padding: 24px;
+  }
+
+  .phone {
+    max-width: 360px;
+    width: 100%;
+    background: #e8e8e4;
+    border-radius: 20px;
+    padding: 12px;
+    border: 1px solid #ccc;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.10);
+  }
+
+  .screen {
+    background: #ffffff;
+    border-radius: 14px;
+    border: 1px solid #ddd;
+    min-height: 520px;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  .bar {
+    background: #1D9E75;
+    padding: 14px 16px;
+    color: #fff;
+  }
+  .bar-title { font-size: 14px; font-weight: 600; }
+  .bar-sub { font-size: 11px; opacity: 0.85; margin-top: 2px; }
+
+  .body {
+    padding: 16px;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .page { display: none; flex-direction: column; gap: 8px; flex: 1; }
+  .page.active { display: flex; }
+
+  .intro {
+    font-size: 13px;
+    color: #666;
+    padding: 4px 0 6px;
+  }
+
+  .choice {
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 11px 13px;
+    cursor: pointer;
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    transition: background 0.12s, border-color 0.12s;
+  }
+  .choice:hover { background: #f5f5f3; }
+  .choice.selected { border-color: #1D9E75; background: #E1F5EE; }
+
+  .choice-icon {
+    width: 28px;
+    height: 28px;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+  .icon-red    { background: #FCEBEB; }
+  .icon-green  { background: #EAF3DE; }
+  .icon-blue   { background: #E6F1FB; }
+  .icon-amber  { background: #FAEEDA; }
+  .icon-gray   { background: #F1EFE8; }
+
+  .choice-text { font-size: 13px; font-weight: 600; color: #1a1a1a; }
+  .choice-sub  { font-size: 11px; color: #777; margin-top: 2px; }
+
+  .section-label {
+    font-size: 11px;
+    color: #888;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    padding: 2px 0 4px;
+  }
+
+  .dest {
+    border-radius: 8px;
+    padding: 11px 13px;
+    font-size: 12px;
+  }
+  .dest-green  { background: #E1F5EE; border: 1px solid #5DCAA5; color: #085041; }
+  .dest-gray   { background: #F1EFE8; border: 1px solid #B4B2A9; color: #2C2C2A; }
+  .dest-blue   { background: #E6F1FB; border: 1px solid #85B7EB; color: #042C53; }
+  .dest-amber  { background: #FAEEDA; border: 1px solid #EF9F27; color: #412402; }
+
+  .dest-title  { font-weight: 600; font-size: 12px; margin-bottom: 3px; }
+
+  .pill {
+    display: inline-block;
+    font-size: 10px;
+    padding: 1px 6px;
+    border-radius: 10px;
+    font-weight: 600;
+    background: #E6F1FB;
+    color: #042C53;
+    vertical-align: middle;
+  }
+
+  .scagile {
+    background: #E6F1FB;
+    border: 1px solid #85B7EB;
+    border-radius: 8px;
+    padding: 8px 12px;
+    font-size: 11px;
+    color: #0C447C;
+    margin-top: 2px;
+  }
+
+  .divider {
+    border: none;
+    border-top: 1px solid #eee;
+    margin: 4px 0;
+  }
+
+  .btn-row {
+    display: flex;
+    gap: 8px;
+    margin-top: auto;
+    padding-top: 12px;
+  }
+
+  .btn {
+    flex: 1;
+    padding: 10px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    border: 1px solid #ccc;
+    background: transparent;
+    color: #333;
+    transition: background 0.12s;
+  }
+  .btn:hover { background: #f0f0ee; }
+
+  .btn-primary {
+    background: #1D9E75;
+    color: #fff;
+    border-color: #0F6E56;
+  }
+  .btn-primary:hover { background: #0F6E56; }
+
+  textarea, select {
+    width: 100%;
+    font-family: inherit;
+    font-size: 12px;
+    padding: 8px;
+    border-radius: 8px;
+    border: 1px solid #ddd;
+    background: #fff;
+    color: #1a1a1a;
+    resize: none;
+  }
+  textarea:focus, select:focus {
+    outline: none;
+    border-color: #1D9E75;
+  }
+
+  .drop-zone {
+    border: 1px dashed #ccc;
+    border-radius: 8px;
+    padding: 12px;
+    text-align: center;
+    font-size: 11px;
+    color: #aaa;
+  }
+
+  .success-msg {
+    text-align: center;
+    color: #085041;
+    font-size: 13px;
+    font-weight: 600;
+    padding: 16px 0;
+  }
+</style>
+</head>
+<body>
+
+<div class="phone">
+  <div class="screen">
+    <div class="bar">
+      <div class="bar-title">FAREKOS</div>
+      <div class="bar-sub" id="bar-sub">Pflanzenschutz-Kontrollsystem</div>
+    </div>
+    <div class="body">
+
+      <!-- Startseite: Kategorienauswahl -->
+      <div class="page active" id="p0">
+        <div class="intro">Womit können wir helfen?</div>
+
+        <div class="choice" onclick="select('stoerung')">
+          <div class="choice-icon icon-red">
+            <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
+              <circle cx="8" cy="8" r="7" stroke="#E24B4A" stroke-width="1.5"/>
+              <line x1="8" y1="4" x2="8" y2="9" stroke="#E24B4A" stroke-width="1.5" stroke-linecap="round"/>
+              <circle cx="8" cy="12" r="1" fill="#E24B4A"/>
+            </svg>
+          </div>
+          <div>
+            <div class="choice-text">Technische Störung</div>
+            <div class="choice-sub">System reagiert nicht, Fehler, Ausfall</div>
+          </div>
+        </div>
+
+        <div class="choice" onclick="select('fachlich')">
+          <div class="choice-icon icon-green">
+            <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
+              <path d="M2 12L6 8l3 3 5-6" stroke="#1D9E75" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+          <div>
+            <div class="choice-text">Fachliche Frage</div>
+            <div class="choice-sub">Inhalt, Logik, fachliche Klärung</div>
+          </div>
+        </div>
+
+        <div class="choice" onclick="select('nutzung')">
+          <div class="choice-icon icon-blue">
+            <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
+              <circle cx="8" cy="6" r="3" stroke="#378ADD" stroke-width="1.5"/>
+              <path d="M2 14c0-3 2.7-5 6-5s6 2 6 5" stroke="#378ADD" stroke-width="1.5" stroke-linecap="round"/>
+            </svg>
+          </div>
+          <div>
+            <div class="choice-text">Verständnis- / Nutzungsfrage</div>
+            <div class="choice-sub">Bedienung, Erklärung, Hilfe</div>
+          </div>
+        </div>
+
+        <div class="choice" onclick="select('aenderung')">
+          <div class="choice-icon icon-amber">
+            <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
+              <path d="M3 13l2-5 7-7 3 3-7 7-5 2z" stroke="#BA7517" stroke-width="1.5" stroke-linejoin="round"/>
+            </svg>
+          </div>
+          <div>
+            <div class="choice-text">Änderungswunsch / Vorschlag</div>
+            <div class="choice-sub">Neue Funktion, Verbesserung</div>
+          </div>
+        </div>
+
+        <div class="choice" onclick="select('feedback')">
+          <div class="choice-icon icon-gray">
+            <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
+              <path d="M2 3h12v8H9l-3 3v-3H2V3z" stroke="#5F5E5A" stroke-width="1.5" stroke-linejoin="round"/>
+            </svg>
+          </div>
+          <div>
+            <div class="choice-text">Feedback geben</div>
+            <div class="choice-sub">Allgemeine Rückmeldung</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Technische Störung -->
+      <div class="page" id="p-stoerung">
+        <div class="section-label">Technische Störung</div>
+        <div class="dest dest-gray">
+          <div class="dest-title">Sofortmeldung – Notfall-Telefon</div>
+          <strong>+49 xxx xxx xxxx</strong><br>
+          <span style="font-size:10px;opacity:0.8">Mo–Fr 8–17 Uhr, sonst Ansage</span>
+        </div>
+        <hr class="divider">
+        <div class="dest dest-gray">
+          <div class="dest-title">AMS Blubito / STACKIT</div>
+          Störungsbearbeitung gemäß vereinbartem SLA
+        </div>
+        <div class="scagile">Scagile-Ticket wird automatisch angelegt (Typ: Incident)</div>
+      </div>
+
+      <!-- Fachliche Frage -->
+      <div class="page" id="p-fachlich">
+        <div class="section-label">Fachliche Frage</div>
+        <div class="dest dest-green">
+          <div class="dest-title">UAG-Ansprechpartner</div>
+          Weiterleitung an UAG PSM oder UAG PG je nach Thema
+        </div>
+        <div class="dest dest-green" style="margin-top:4px">
+          <div class="dest-title">Klärung via ZEPP</div>
+          Bei länderübergreifenden oder strukturellen Fachfragen
+        </div>
+        <div class="scagile">Scagile-Ticket wird angelegt (Typ: Fachlich)</div>
+      </div>
+
+      <!-- Nutzungsfrage -->
+      <div class="page" id="p-nutzung">
+        <div class="section-label">Verständnis- / Nutzungsfrage</div>
+        <div class="dest dest-blue">
+          <div class="dest-title">FAQ <span class="pill">wenn vorhanden</span></div>
+          Direkt zur Wissensdatenbank auf der FAREKOS-Website
+        </div>
+        <div class="dest dest-blue" style="margin-top:4px">
+          <div class="dest-title">Schulungsvideos <span class="pill">wenn vorhanden</span></div>
+          Blubito-Videoablage, Train-the-Trainer-Material
+        </div>
+        <div class="dest dest-blue" style="margin-top:4px">
+          <div class="dest-title">Persönlicher Ansprechpartner</div>
+          UAG-Kontakt oder Landes-Admin je nach Kontext
+        </div>
+        <div class="scagile">Scagile-Ticket optional (Typ: Nutzungsfrage)</div>
+      </div>
+
+      <!-- Änderungswunsch -->
+      <div class="page" id="p-aenderung">
+        <div class="section-label">Änderungswunsch / Vorschlag</div>
+        <div class="dest dest-amber">
+          <div class="dest-title">Change Request (CR)</div>
+          Wird erfasst und im Bedarfsbündel gesammelt
+        </div>
+        <div class="dest dest-amber" style="margin-top:4px">
+          <div class="dest-title">Priorisierung</div>
+          MVP-Steuerkreis entscheidet über Aufnahme in Sprint-Planung
+        </div>
+        <div class="scagile">Scagile-Ticket wird angelegt (Typ: CR) – Status nachverfolgbar</div>
+      </div>
+
+      <!-- Feedback -->
+      <div class="page" id="p-feedback">
+        <div class="section-label">Feedback geben</div>
+        <div style="border:1px solid #ddd;border-radius:8px;padding:12px;display:flex;flex-direction:column;gap:8px">
+          <div style="font-size:12px;color:#666">Bereich</div>
+          <select>
+            <option>Allgemein</option>
+            <option>Kartenansicht</option>
+            <option>Berichte</option>
+            <option>Oberfläche</option>
+          </select>
+          <div style="font-size:12px;color:#666">Rückmeldung</div>
+          <textarea rows="4" placeholder="Ihre Rückmeldung..."></textarea>
+          <div style="font-size:11px;color:#888">Anhang optional (Screenshot, Datei)</div>
+          <div class="drop-zone">Datei hierher ziehen oder klicken</div>
+        </div>
+        <div class="scagile">Scagile-Ticket wird angelegt (Typ: Feedback)</div>
+      </div>
+
+      <!-- Buttons -->
+      <div class="btn-row">
+        <button class="btn" id="btn-back" onclick="goBack()" style="display:none">Zurück</button>
+        <button class="btn btn-primary" id="btn-main" onclick="goNext()">Weiter</button>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script>
+var current = 'p0';
+var chosen = '';
+
+var labels = {
+  stoerung: 'Technische Störung',
+  fachlich: 'Fachliche Frage',
+  nutzung: 'Nutzungsfrage',
+  aenderung: 'Änderungswunsch',
+  feedback: 'Feedback'
+};
+
+function select(v) {
+  chosen = v;
+  document.querySelectorAll('.choice').forEach(function(c) {
+    c.classList.remove('selected');
+  });
+  event.currentTarget.classList.add('selected');
+}
+
+function goNext() {
+  if (current === 'p0') {
+    if (!chosen) return;
+    showPage('p-' + chosen);
+  } else {
+    submitForm();
+  }
+}
+
+function goBack() {
+  chosen = '';
+  document.querySelectorAll('.choice').forEach(function(c) {
+    c.classList.remove('selected');
+  });
+  showPage('p0');
+}
+
+function showPage(id) {
+  document.querySelectorAll('.page').forEach(function(p) {
+    p.classList.remove('active');
+  });
+  document.getElementById(id).classList.add('active');
+  current = id;
+
+  var isHome = (id === 'p0');
+  var btnBack = document.getElementById('btn-back');
+  var btnMain = document.getElementById('btn-main');
+
+  btnBack.style.display = isHome ? 'none' : 'block';
+  btnMain.textContent = isHome ? 'Weiter' : 'Absenden';
+  document.getElementById('bar-sub').textContent = isHome
+    ? 'Pflanzenschutz-Kontrollsystem'
+    : 'Wizard: ' + (labels[chosen] || '');
+}
+
+function submitForm() {
+  var btn = document.getElementById('btn-main');
+  btn.textContent = 'Gesendet ✓';
+  btn.style.background = '#0F6E56';
+  btn.disabled = true;
+  setTimeout(function() {
+    btn.textContent = 'Weiter';
+    btn.style.background = '';
+    btn.disabled = false;
+    goBack();
+  }, 2000);
+}
+</script>
+
+</body>
+</html>
