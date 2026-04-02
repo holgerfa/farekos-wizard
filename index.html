@@ -209,7 +209,7 @@
   <div class="screen">
     <div class="bar">
       <div class="bar-title">FAREKOS</div>
-      <div class="bar-sub" id="bar-sub">Pflanzenschutz-Kontrollsystem</div>
+      <div class="bar-sub" id="bar-sub"></div>
     </div>
     <div class="body">
 
@@ -423,7 +423,7 @@ function showPage(id) {
   btnBack.style.display = isHome ? 'none' : 'block';
   btnMain.textContent = isHome ? 'Weiter' : 'Absenden';
   document.getElementById('bar-sub').textContent = isHome
-    ? 'Pflanzenschutz-Kontrollsystem'
+    ? ''
     : 'Wizard: ' + (labels[chosen] || '');
 }
 
